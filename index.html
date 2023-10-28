@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ToDo List</title>
+</head>
+<body>
+    <h1>ToDo List</h1>
+    <div class="input-container">
+        <input type="text" id="taskInput" placeholder="Add a new task">
+        <button id="addTask">Add</button>
+    </div>
+    <ul id="taskList">
+        <!-- Tasks will be added here -->
+    </ul>
+    <script>
+        // Get references to the necessary elements
+        const taskInput = document.getElementById('taskInput');
+        const addTaskButton = document.getElementById('addTask');
+        const taskList = document.getElementById('taskList');
+    
+        // Check for existing tasks in local storage
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    
+        // Function to display tasks
+        function displayTasks() {
+            taskList.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <input type="checkbox" ${task.completed ? 'checked' : ''}>
+                    <span>${task.text}</span>
+                    <button class="edit">Edit</button>
+                    <button class="delete">Delete</button>
+                `;
+                taskList.appendChild(li);
+    
+                // Handle checkbox changes
+                const checkbox = li.querySelector('input[type="checkbox"]');
+                checkbox.addEventListener('change', () => {
+                    tasks[index].completed = checkbox.checked;
+                    saveTasks();
+                });
+    
+                // Handle edit button click
+                const editButton = li.querySelector('.edit');
+                editButton.addEventListener('click', () => {
+                    const newText = prompt('Edit task:', task.text);
+                    if (newText !== null) {
+                        tasks[index].text = newText;
+                        saveTasks();
+                        displayTasks();
+                    }
+                });
+    
+                // Handle delete button click
+                const deleteButton = li.querySelector('.delete');
+                deleteButton.addEventListener('click', () => {
+                    tasks.splice(index, 1);
+                    saveTasks();
+                    displayTasks();
+                });
+            });
+        }
+    
+        // Function to save tasks in local storage
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+    
+        // Event listener for adding a new task
+        addTaskButton.addEventListener('click', () => {
+            const text = taskInput.value.trim();
+            if (text !== '') {
+                tasks.push({ text, completed: false });
+                saveTasks();
+                displayTasks();
+                taskInput.value = '';
+            }
+        });
+    
+        // Initial display of tasks
+        displayTasks();
+    </script>
+    
+</body>
+</html>
